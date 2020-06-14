@@ -32,7 +32,13 @@ x, _ := prompt.SelectSingle(ctx,
 )
 ```
 
-For more details please visit examples folder.
+For more details please visit example folder.
+
+# Screencast
+
+This screencast was recorded by running binary from example folder.
+
+<img src="https://raw.githubusercontent.com/gobwas/prompt/master/example/example.gif" width="800" style="border-radius:5px">
 
 [godoc-image]: https://godoc.org/github.com/gobwas/prompt?status.svg
 [godoc-url]:   https://godoc.org/github.com/gobwas/prompt
