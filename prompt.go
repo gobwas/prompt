@@ -45,11 +45,17 @@ func SelectSingle(ctx context.Context, msg string, opts []string) (int, error) {
 
 type Prompt struct {
 	Message string
+	Default string
 	stdin   *bufio.Reader
 }
 
 func (p *Prompt) ReadLine(ctx context.Context) (string, error) {
 	fmt.Print(p.Message)
+	if s := p.Default; s != "" {
+		if err := prefillInput(s); err != nil {
+			return "", err
+		}
+	}
 	line, err := p.readLine(ctx)
 	if err != nil {
 		return "", err
