@@ -15,6 +15,11 @@ func TestMatch(t *testing.T) {
 			exp: true,
 		},
 		{
+			str: "Fat Cat",
+			pat: "fct",
+			exp: true,
+		},
+		{
 			str: "fat cat",
 			pat: "fcct",
 			exp: false,
