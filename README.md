@@ -1,6 +1,7 @@
 # prompt
 
 [![GoDoc][godoc-image]][godoc-url]
+[![CI][ci-image]][ci-url]
 
 > Ascetic and minimalistic CLI prompt library.
 
@@ -42,3 +43,5 @@ This screencast was recorded by running binary from example folder.
 
 [godoc-image]: https://godoc.org/github.com/gobwas/prompt?status.svg
 [godoc-url]:   https://godoc.org/github.com/gobwas/prompt
+[ci-image]:    https://github.com/gobwas/prompt/workflows/CI/badge.svg?branch=master
+[ci-url]:      https://github.com/gobwas/prompt/actions?query=workflow%3ACI
