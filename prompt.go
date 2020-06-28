@@ -24,7 +24,8 @@ func ReadLine(ctx context.Context, msg string) (string, error) {
 
 func Confirm(ctx context.Context, text string) (bool, error) {
 	q := Question{
-		Text: text,
+		Text:   text,
+		Strict: false,
 	}
 	return q.Confirm(ctx)
 }
@@ -89,7 +90,8 @@ func (p *Prompt) readLine(ctx context.Context) (string, error) {
 }
 
 type Question struct {
-	Text string
+	Text   string
+	Strict bool
 }
 
 func (q *Question) Confirm(ctx context.Context) (result bool, err error) {
@@ -100,7 +102,13 @@ func (q *Question) Confirm(ctx context.Context) (result bool, err error) {
 	if err != nil {
 		return false, err
 	}
-	return strings.EqualFold(line, "y"), nil
+	if strings.EqualFold(line, "y") {
+		return true, nil
+	}
+	if q.Strict && !strings.EqualFold(line, "n") {
+		err = fmt.Errorf("unexpected answer: %q", line)
+	}
+	return false, err
 }
 
 type Select struct {
