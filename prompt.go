@@ -10,23 +10,30 @@ import (
 	"text/tabwriter"
 )
 
-var DefaultSelect = Select{
-	Filter: true,
-	Paging: 8,
-}
+var (
+	DefaultPrompt = Prompt{
+		Verbose: false,
+	}
+	DefaultQuestion = Question{
+		Strict:  false,
+		Mode:    QuestionSuffix,
+		Default: true,
+	}
+	DefaultSelect = Select{
+		Filter: true,
+		Paging: 8,
+	}
+)
 
 func ReadLine(ctx context.Context, msg string) (string, error) {
-	p := Prompt{
-		Message: msg,
-	}
+	p := DefaultPrompt
+	p.Message = msg
 	return p.ReadLine(ctx)
 }
 
-func Confirm(ctx context.Context, text string) (bool, error) {
-	q := Question{
-		Text:   text,
-		Strict: false,
-	}
+func Confirm(ctx context.Context, msg string) (bool, error) {
+	q := DefaultQuestion
+	q.Message = msg
 	return q.Confirm(ctx)
 }
 
@@ -47,11 +54,18 @@ func SelectSingle(ctx context.Context, msg string, opts []string) (int, error) {
 type Prompt struct {
 	Message string
 	Default string
+	Verbose bool
+	Prompt  string
 	stdin   *bufio.Reader
 }
 
 func (p *Prompt) ReadLine(ctx context.Context) (string, error) {
-	fmt.Print(p.Message)
+	if p.Verbose {
+		fmt.Println(p.Message)
+		fmt.Print(p.Prompt)
+	} else {
+		fmt.Print(p.Message)
+	}
 	if s := p.Default; s != "" {
 		if err := prefillInput(s); err != nil {
 			return "", err
@@ -89,19 +103,53 @@ func (p *Prompt) readLine(ctx context.Context) (string, error) {
 	}
 }
 
+type QuestionMode uint8
+
+const (
+	QuestionEmpty QuestionMode = iota
+	QuestionSuffix
+	QuestionNewLine
+)
+
+type QuestionDefault uint8
+
 type Question struct {
-	Text   string
-	Strict bool
+	Message string
+	// Default value when user just press Enter without any input.
+	Default bool
+	Strict  bool
+	Mode    QuestionMode
+}
+
+func (q *Question) opts() string {
+	if q.Strict {
+		return "[y/n]"
+	}
+	if q.Default == true {
+		return "[Y/n]"
+	} else {
+		return "[y/N]"
+	}
 }
 
 func (q *Question) Confirm(ctx context.Context) (result bool, err error) {
 	p := Prompt{
-		Message: q.Text + " [Y/n]: ",
+		Message: q.Message,
+	}
+	switch q.Mode {
+	case QuestionSuffix:
+		p.Message += " " + q.opts() + " "
+	case QuestionNewLine:
+		p.Verbose = true
+		p.Prompt = "Command " + q.opts() + ": "
 	}
 	for {
 		line, err := p.ReadLine(ctx)
 		if err != nil {
 			return false, err
+		}
+		if line == "" && !q.Strict {
+			return q.Default, nil
 		}
 		if strings.EqualFold(line, "y") {
 			return true, nil
