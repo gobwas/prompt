@@ -98,17 +98,19 @@ func (q *Question) Confirm(ctx context.Context) (result bool, err error) {
 	p := Prompt{
 		Message: q.Text + " [Y/n]: ",
 	}
-	line, err := p.ReadLine(ctx)
-	if err != nil {
-		return false, err
+	for {
+		line, err := p.ReadLine(ctx)
+		if err != nil {
+			return false, err
+		}
+		if strings.EqualFold(line, "y") {
+			return true, nil
+		}
+		if !q.Strict || strings.EqualFold(line, "n") {
+			return false, nil
+		}
+		fmt.Println("Unexpected answer")
 	}
-	if strings.EqualFold(line, "y") {
-		return true, nil
-	}
-	if q.Strict && !strings.EqualFold(line, "n") {
-		err = fmt.Errorf("unexpected answer: %q", line)
-	}
-	return false, err
 }
 
 type Select struct {
